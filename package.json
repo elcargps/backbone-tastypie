@@ -1,5 +1,5 @@
 {
-  "name": "backbone-tastypie",
+  "name": "@elcar-gps/backbone-tastypie",
   "main": "backbone_tastypie/static/js/backbone-tastypie.js",
   "description": "A small compatibility layer to make backbone.js and django-tastypie work together happily.",
   "homepage": "https://github.com/PaulUithol/backbone-tastypie",
