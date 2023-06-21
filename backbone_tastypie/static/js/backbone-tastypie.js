@@ -1,7 +1,7 @@
 /**
  * Backbone-tastypie.js 0.2.0
  * (c) 2011 Paul Uithol
- * 
+ *
  * Backbone-tastypie may be freely distributed under the MIT license.
  * Add or override Backbone.js functionality, for compatibility with django-tastypie.
  * Depends on Backbone (and thus on Underscore as well): https://github.com/documentcloud/backbone.
@@ -34,9 +34,9 @@
 		defaultOptions: {},
 		doGetOnEmptyPostResponse: true,
 		doGetOnEmptyPutResponse: false,
-		idAttribute: 'resource_uri'
+		idAttribute: 'id'
 	};
-	
+
 	Backbone.Model.prototype.idAttribute = Backbone.Tastypie.idAttribute;
 
 	/**
@@ -108,25 +108,6 @@
 		return Backbone.oldSync( method, model, options );
 	};
 
-	Backbone.Model.prototype.url = function() {
-		// Use the 'resource_uri' if possible
-		var url = this.get( 'resource_uri' );
-
-		// If there's no idAttribute, use the 'urlRoot'. Fallback to try to have the collection construct a url.
-		// Explicitly add the 'id' attribute if the model has one.
-		if ( !url ) {
-			url = _.result( this, 'urlRoot' ) || ( this.collection && _.result( this.collection, 'url' ) );
-
-			if ( url && this.has( 'id' ) ) {
-				url = addSlash( url ) + this.get( 'id' );
-			}
-		}
-
-		url = url && addSlash( url );
-
-		return url || null;
-	};
-
 	/**
 	 * Return the first entry in 'data.objects' if it exists and is an array, or else just plain 'data'.
 	 *
@@ -148,45 +129,5 @@
 		}
 
 		return data && data.objects || data;
-	};
-
-	/**
-	 * Construct a url for the collection, or for a set of models in the collection if the `models` param is used.
-	 * Will attempt to use its own `urlRoot` first; if that doesn't yield a result, attempts to use the `urlRoot`
-	 * on models in the collection.
-	 *
-	 * @param {Backbone.Model[]|string[]} [models]
-	 */
-	Backbone.Collection.prototype.url = function( models ) {
-		var url = _.result( this, 'urlRoot' );
-		
-		// If the collection doesn't specify an url, try to obtain one from a model in the collection
-		if ( !url ) {
-			var model = this.models.length && this.models[ 0 ];
-			url = model && _.result( model, 'urlRoot' );
-		}
-		
-		if ( !url ) {
-			url = _.result( this.model.prototype, 'urlRoot' );
-		}
-		
-		url = url && addSlash( url );
-
-		// Build a url to retrieve a set of models. This assume the last part of each model's idAttribute contains
-		// the model's id. Will work when idAttribute is set to 'resource_uri' (default), but for a plain 'id' as well.
-		if ( models && models.length ) {
-			var ids = _.map( models, function( model ) {
-				var id = model instanceof Backbone.Model ? model.url() : model,
-					parts = _.compact( id.split( '/' ) );
-				return parts[ parts.length - 1 ];
-			});
-			url += Backbone.Tastypie.constructSetUrl( ids );
-		}
-
-		return url || null;
-	};
-
-	var addSlash = function( str ) {
-		return str + ( ( str.length > 0 && str.charAt( str.length - 1 ) === '/' ) ? '' : '/' );
 	};
 }));
